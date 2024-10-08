@@ -94,8 +94,7 @@ from wsgidav.dav_error import (
     PRECONDITION_CODE_ProtectedProperty,
     as_DAVError,
 )
-# from wsgidav.util import etree
-import xml.etree.ElementTree as etree
+from wsgidav.util import etree
 
 __docformat__ = "reStructuredText"
 
@@ -113,8 +112,6 @@ _standardLivePropNames = [
     # "{DAV:}source", # removed in rfc4918
 ]
 _lockPropertyNames = ["{DAV:}lockdiscovery", "{DAV:}supportedlock"]
-etree.register_namespace('D', 'DAV:')
-
 
 # ========================================================================
 # _DAVResource
