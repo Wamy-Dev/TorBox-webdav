@@ -724,7 +724,7 @@ class _DAVResource(ABC):
                 return self.get_content_type()
             elif name == "{DAV:}resourcetype":
                 if self.is_collection:
-                    resourcetypeEL = etree.Element("{DAV:}resourcetype")
+                    resourcetypeEL = etree.Element(name)
                     etree.SubElement(resourcetypeEL, "{DAV:}collection")
                     return resourcetypeEL
                 return ""
