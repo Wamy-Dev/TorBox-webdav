@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Abstract base middleware class (optional use).
 """
+
 from abc import ABC, abstractmethod
 
 from wsgidav.util import NO_DEFAULT, get_dict_value
@@ -36,7 +36,7 @@ class BaseMiddleware(ABC):
         raise NotImplementedError
 
     def __repr__(self):
-        return "{}.{}".format(self.__module__, self.__class__.__name__)
+        return f"{self.__module__}.{self.__class__.__name__}"
 
     def is_disabled(self):
         """Optionally return True to skip this module on startup."""

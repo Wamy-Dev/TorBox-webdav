@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 """Unit test for lock_manager.py"""
 import os
-import sys
 import unittest
 from tempfile import gettempdir
 from time import sleep
@@ -375,13 +373,12 @@ class ShelveTest(BasicTest):
     """Test lock_manager.ShelveLockManager()."""
 
     def setUp(self):
-        if sys.version_info < (3, 0):
-            modifier = "-py2"  # shelve formats are incompatible
-        else:
-            modifier = "-py3"
-        self.path = os.path.join(
-            gettempdir(), "wsgidav-locks{}.shelve".format(modifier)
-        )
+        # if sys.version_info < (3, 0):
+        #     modifier = "-py2"  # shelve formats are incompatible
+        # else:
+        #     modifier = "-py3"
+        modifier = "-py3"
+        self.path = os.path.join(gettempdir(), f"wsgidav-locks{modifier}.shelve")
         storage = lock_storage.LockStorageShelve(self.path)
         self.lm = lock_manager.LockManager(storage)
         self.lm._verbose = 2
@@ -407,13 +404,13 @@ class RedisTest(BasicTest):
             raise unittest.SkipTest("Test requires a running redis instance (again)")
 
         try:
-            import redis
+            import redis  # type: ignore
 
             r = redis.Redis()
             r.ping()
-        except redis.exceptions.ConnectionError:
+        except redis.exceptions.ConnectionError as e:
             RedisTest._redis_connect_failed = True
-            raise unittest.SkipTest("Test requires a running redis instance")
+            raise unittest.SkipTest("Test requires a running redis instance") from e
         storage = LockStorageRedis()
         self.lm = lock_manager.LockManager(storage)
         self.lm._verbose = 2

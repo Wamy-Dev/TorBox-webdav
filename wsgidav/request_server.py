@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -115,8 +114,7 @@ class RequestServer:
             )
             # sort: 0:"calls",1:"time", 2: "cumulative"
             profile.print_stats(sort=2)
-            for v in res:
-                yield v
+            yield from res
             if hasattr(res, "close"):
                 res.close()
             return
@@ -127,9 +125,7 @@ class RequestServer:
         # _logger.warning("#1... 2")
         try:
             # _logger.warning("#1... 3")
-            for v in app_iter:
-                # _logger.warning("#1... 4")
-                yield v
+            yield from app_iter
             # _logger.warning("#1... 5")
         # except Exception:
         #     _logger.warning("#1... 6")
@@ -182,8 +178,8 @@ class RequestServer:
             assert isinstance(e, DAVError)
             responseEL = etree.SubElement(multistatusEL, "{DAV:}response")
             etree.SubElement(responseEL, "{DAV:}href").text = refurl
-            etree.SubElement(responseEL, "{DAV:}status").text = "HTTP/1.1 {}".format(
-                get_http_status_string(e)
+            etree.SubElement(responseEL, "{DAV:}status").text = (
+                f"HTTP/1.1 {get_http_status_string(e)}"
             )
 
         return util.send_multi_status_response(environ, start_response, multistatusEL)
@@ -286,7 +282,7 @@ class RequestServer:
         # RFC: By default, the PROPFIND method without a Depth header MUST act
         # as if a "Depth: infinity" header was included.
         environ.setdefault("HTTP_DEPTH", "infinity")
-        if not environ["HTTP_DEPTH"] in ("0", "1", "infinity"):
+        if environ["HTTP_DEPTH"] not in ("0", "1", "infinity"):
             self._fail(
                 HTTP_BAD_REQUEST,
                 "Invalid Depth header: {!r}.".format(environ["HTTP_DEPTH"]),
@@ -368,9 +364,9 @@ class RequestServer:
             util.add_property_response(multistatusEL, href, propList)
 
         if responsedescription:
-            etree.SubElement(
-                multistatusEL, "{DAV:}responsedescription"
-            ).text = "\n".join(responsedescription)
+            etree.SubElement(multistatusEL, "{DAV:}responsedescription").text = (
+                "\n".join(responsedescription)
+            )
 
         return util.send_multi_status_response(environ, start_response, multistatusEL)
 
@@ -439,7 +435,7 @@ class RequestServer:
         successflag = True
         writeresultlist = []
 
-        for (name, propvalue) in propupdatelist:
+        for name, propvalue in propupdatelist:
             try:
                 res.set_property_value(name, propvalue, dry_run=True)
             except Exception as e:
@@ -456,7 +452,7 @@ class RequestServer:
 
         if not successflag:
             # If dry run failed: convert all OK to FAILED_DEPENDENCY.
-            for (name, result) in writeresultlist:
+            for name, result in writeresultlist:
                 if result == "200 OK":
                     result = DAVError(HTTP_FAILED_DEPENDENCY)
                 elif isinstance(result, DAVError):
@@ -467,7 +463,7 @@ class RequestServer:
             # Dry-run succeeded: set properties again, this time in 'real' mode
             # In theory, there should be no exceptions thrown here, but this is
             # real live...
-            for (name, propvalue) in propupdatelist:
+            for name, propvalue in propupdatelist:
                 try:
                     res.set_property_value(name, propvalue, dry_run=False)
                     # Set value to None, so the response xml contains empty tags
@@ -482,9 +478,9 @@ class RequestServer:
         href = res.get_href()
         util.add_property_response(multistatusEL, href, propResponseList)
         if responsedescription:
-            etree.SubElement(
-                multistatusEL, "{DAV:}responsedescription"
-            ).text = "\n".join(responsedescription)
+            etree.SubElement(multistatusEL, "{DAV:}responsedescription").text = (
+                "\n".join(responsedescription)
+            )
 
         # Send response
         return util.send_multi_status_response(environ, start_response, multistatusEL)
@@ -565,7 +561,7 @@ class RequestServer:
                     "Only Depth: infinity is supported for collections.",
                 )
         else:
-            if not environ.setdefault("HTTP_DEPTH", "0") in ("0", "infinity"):
+            if environ.setdefault("HTTP_DEPTH", "0") not in ("0", "infinity"):
                 self._fail(
                     HTTP_BAD_REQUEST,
                     "Only Depth: 0 or infinity are supported for non-collections.",
@@ -634,9 +630,7 @@ class RequestServer:
         ignore_dict = {}
         for child_res in reverse_child_ist:
             if child_res.path in ignore_dict:
-                _logger.debug(
-                    "Skipping {} (contains error child)".format(child_res.path)
-                )
+                _logger.debug(f"Skipping {child_res.path} (contains error child)")
                 ignore_dict[util.get_uri_parent(child_res.path)] = ""
                 continue
 
@@ -741,7 +735,7 @@ class RequestServer:
         if res.support_etag():
             etag = checked_etag(res.get_etag(), allow_none=True)
             if etag is not None:
-                headers = [("ETag", '"{}"'.format(etag))]
+                headers = [("ETag", f'"{etag}"')]
 
         if isnewfile:
             return util.send_status_response(
@@ -795,7 +789,7 @@ class RequestServer:
             # <A:propertybehavior xmlns:A="DAV:"> <A:keepalive>*</A:keepalive>
             body = environ["wsgi.input"].read(util.get_content_length(environ))
             environ["wsgidav.all_input_read"] = 1
-            _logger.info("Ignored copy/move  body: {!r}...".format(body[:50]))
+            _logger.info(f"Ignored copy/move  body: {body[:50]!r}...")
 
         if src_res.is_collection:
             # The COPY method on a collection without a Depth header MUST act as
@@ -964,7 +958,7 @@ class RequestServer:
                 # header is "T", then prior to performing the move, the server
                 # MUST perform a DELETE with "Depth: infinity" on the
                 # destination resource.
-                _logger.debug("Remove dest before move: {!r}".format(dest_res))
+                _logger.debug(f"Remove dest before move: {dest_res!r}")
                 dest_res.delete()
                 dest_res = None
             else:
@@ -978,15 +972,13 @@ class RequestServer:
                     depth_first=True, add_self=False
                 )
                 src_path_list = [s.path for s in src_list]
-                _logger.debug("check src_path_list: {}".format(src_path_list))
+                _logger.debug(f"check src_path_list: {src_path_list}")
                 for dres in reverse_dest_list:
-                    _logger.debug("check unmatched dest before copy: {}".format(dres))
+                    _logger.debug(f"check unmatched dest before copy: {dres}")
                     rel_url = dres.path[dest_root_len:]
                     sp = src_path + rel_url
                     if sp not in src_path_list:
-                        _logger.debug(
-                            "Remove unmatched dest before copy: {}".format(dres)
-                        )
+                        _logger.debug(f"Remove unmatched dest before copy: {dres}")
                         dres.delete()
 
         # --- Let provider implement recursive move ---------------------------
@@ -1006,9 +998,7 @@ class RequestServer:
 
             if not has_conflicts:
                 try:
-                    _logger.debug(
-                        "Recursive move: {} -> {!r}".format(src_res, dest_path)
-                    )
+                    _logger.debug(f"Recursive move: {src_res} -> {dest_path!r}")
                     error_list = src_res.move_recursive(dest_path)
                 except Exception as e:
                     _debug_exception(e)
@@ -1039,9 +1029,7 @@ class RequestServer:
                     parent_error = True
                     break
             if parent_error:
-                _logger.debug(
-                    "Copy: skipping {!r}, because of parent error".format(sres.path)
-                )
+                _logger.debug(f"Copy: skipping {sres.path!r}, because of parent error")
                 continue
 
             try:
@@ -1076,7 +1064,7 @@ class RequestServer:
         if is_move:
             reverse_src_list = src_list[:]
             reverse_src_list.reverse()
-            _logger.debug("Delete after move, ignore_dict={}".format(ignore_dict))
+            _logger.debug(f"Delete after move, ignore_dict={ignore_dict}")
             for sres in reverse_src_list:
                 # Non-collections have already been removed in the copy loop.
                 if not sres.is_collection:
@@ -1089,20 +1077,18 @@ class RequestServer:
                         break
                 if child_error:
                     _logger.debug(
-                        "Delete after move: skipping {!r}, because of child error".format(
-                            sres.path
-                        )
+                        f"Delete after move: skipping {sres.path!r}, because of child error"
                     )
                     continue
 
                 try:
-                    _logger.debug("Remove collection after move: {}".format(sres))
+                    _logger.debug(f"Remove collection after move: {sres}")
                     sres.delete()
                 except Exception as e:
                     _debug_exception(e)
                     error_list.append((src_res.get_href(), as_DAVError(e)))
 
-            _logger.debug("ErrorList: {}".format(error_list))
+            _logger.debug(f"ErrorList: {error_list}")
 
         # --- Return response -------------------------------------------------
 
@@ -1216,7 +1202,7 @@ class RequestServer:
                 lock_owner = xml_tools.xml_to_bytes(linode, pretty=False)
 
             else:
-                self._fail(HTTP_BAD_REQUEST, "Invalid node {!r}.".format(linode.tag))
+                self._fail(HTTP_BAD_REQUEST, f"Invalid node {linode.tag!r}.")
 
         if not lock_scope:
             self._fail(HTTP_BAD_REQUEST, "Missing or invalid lockscope.")
@@ -1548,7 +1534,7 @@ class RequestServer:
         response_headers.append(("Content-Type", mimetype))
         response_headers.append(("Date", util.get_rfc1123_time()))
         if res.support_etag():
-            response_headers.append(("ETag", '"{}"'.format(etag)))
+            response_headers.append(("ETag", f'"{etag}"'))
 
         if res.support_ranges():
             response_headers.append(("Accept-Ranges", "bytes"))

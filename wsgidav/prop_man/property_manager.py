@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -92,35 +91,33 @@ class PropertyManager:
             if not self._loaded:
                 return True
             for k, v in self._dict.items():
-                _dummy = "{}, {}".format(k, v)  # noqa
+                _dummy = f"{k}, {v}"  # noqa
             #            _logger.debug("{} checks ok {}".format(self.__class__.__name__, msg))
             return True
         except Exception:
-            _logger.exception(
-                "{} _check: ERROR {}".format(self.__class__.__name__, msg)
-            )
+            _logger.exception(f"{self.__class__.__name__} _check: ERROR {msg}")
             return False
 
     def _dump(self, msg=""):
-        _logger.info("{}({}): {}".format(self.__class__.__name__, self.__repr__(), msg))
+        _logger.info(f"{self.__class__.__name__}({self.__repr__()}): {msg}")
         if not self._loaded:
             self._lazy_open()
             if self._verbose >= 4:
                 return  # Already dumped in _lazy_open
         try:
             for k, v in self._dict.items():
-                _logger.info("    {}".format(k))
+                _logger.info(f"    {k}")
                 for k2, v2 in v.items():
                     try:
-                        _logger.info("        {}: {!r}".format(k2, v2))
+                        _logger.info(f"        {k2}: {v2!r}")
                     except Exception as e:
-                        _logger.info("        {}: ERROR {}".format(k2, e))
+                        _logger.info(f"        {k2}: ERROR {e}")
             # _logger.flush()
         except Exception as e:
-            _logger.error("PropertyManager._dump()  ERROR: {}".format(e))
+            _logger.error(f"PropertyManager._dump()  ERROR: {e}")
 
     def get_properties(self, norm_url, environ=None):
-        _logger.debug("get_properties({})".format(norm_url))
+        _logger.debug(f"get_properties({norm_url})")
         self._lock.acquire_read()
         try:
             if not self._loaded:
@@ -134,7 +131,7 @@ class PropertyManager:
             self._lock.release()
 
     def get_property(self, norm_url, name, environ=None):
-        _logger.debug("get_property({}, {})".format(norm_url, name))
+        _logger.debug(f"get_property({norm_url}, {name})")
         self._lock.acquire_read()
         try:
             if not self._loaded:
@@ -146,9 +143,7 @@ class PropertyManager:
             try:
                 resourceprops = self._dict[norm_url]
             except Exception as e:
-                _logger.exception(
-                    "get_property({}, {}) failed : {}".format(norm_url, name, e)
-                )
+                _logger.exception(f"get_property({norm_url}, {name}) failed : {e}")
                 raise
             return resourceprops.get(name)
         finally:
@@ -162,9 +157,7 @@ class PropertyManager:
         assert property_value is not None
 
         _logger.debug(
-            "write_property({}, {}, dry_run={}):\n\t{}".format(
-                norm_url, name, dry_run, property_value
-            )
+            f"write_property({norm_url}, {name}, dry_run={dry_run}):\n\t{property_value}"
         )
         if dry_run:
             return  # TODO: can we check anything here?
@@ -190,9 +183,7 @@ class PropertyManager:
         """
         Specifying the removal of a property that does not exist is NOT an error.
         """
-        _logger.debug(
-            "remove_property({}, {}, dry_run={})".format(norm_url, name, dry_run)
-        )
+        _logger.debug(f"remove_property({norm_url}, {name}, dry_run={dry_run})")
         if dry_run:
             # TODO: can we check anything here?
             return
@@ -214,7 +205,7 @@ class PropertyManager:
             self._lock.release()
 
     def remove_properties(self, norm_url, environ=None):
-        _logger.debug("remove_properties({})".format(norm_url))
+        _logger.debug(f"remove_properties({norm_url})")
         self._lock.acquire_write()
         try:
             if not self._loaded:
@@ -226,7 +217,7 @@ class PropertyManager:
             self._lock.release()
 
     def copy_properties(self, src_url, dest_url, environ=None):
-        _logger.debug("copy_properties({}, {})".format(src_url, dest_url))
+        _logger.debug(f"copy_properties({src_url}, {dest_url})")
         self._lock.acquire_write()
         try:
             if __debug__ and self._verbose >= 4:
@@ -242,9 +233,7 @@ class PropertyManager:
             self._lock.release()
 
     def move_properties(self, src_url, dest_url, with_children, environ=None):
-        _logger.debug(
-            "move_properties({}, {}, {})".format(src_url, dest_url, with_children)
-        )
+        _logger.debug(f"move_properties({src_url}, {dest_url}, {with_children})")
         self._lock.acquire_write()
         try:
             if __debug__ and self._verbose >= 4:
@@ -284,10 +273,10 @@ class ShelvePropertyManager(PropertyManager):
         super().__init__()
 
     def __repr__(self):
-        return "ShelvePropertyManager({})".format(self._storage_path)
+        return f"ShelvePropertyManager({self._storage_path})"
 
     def _lazy_open(self):
-        _logger.debug("_lazy_open({})".format(self._storage_path))
+        _logger.debug(f"_lazy_open({self._storage_path})")
         self._lock.acquire_write()
         try:
             # Test again within the critical section

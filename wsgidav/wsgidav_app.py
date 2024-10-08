@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -133,7 +132,7 @@ def _check_config(config):
 
 
 #: Minimal Python version that is supported by WsgiDAV
-MIN_PYTHON_VERSION_INFO = (3, 8)
+MIN_PYTHON_VERSION_INFO = (3, 9)
 
 check_python_version(MIN_PYTHON_VERSION_INFO)
 
@@ -268,28 +267,20 @@ class WsgiDAVApp:
             # Add middleware to the stack
             if app:
                 if callable(getattr(app, "is_disabled", None)) and app.is_disabled():
-                    _logger.warning(
-                        "App {}.is_disabled() returned True: skipping.".format(app)
-                    )
+                    _logger.warning(f"App {app}.is_disabled() returned True: skipping.")
                 else:
                     mw_list.append(app)
                     self.application = app
             else:
-                _logger.error("Could not add middleware {}.".format(mw))
+                _logger.error(f"Could not add middleware {mw}.")
 
         _logger.info(
-            "WsgiDAV/{} Python/{} {}".format(
-                __version__,
-                util.PYTHON_VERSION,
-                platform.platform(aliased=True),
-            )
+            f"WsgiDAV/{__version__} Python/{util.PYTHON_VERSION} {platform.platform(aliased=True)}"
         )
 
         if self.verbose >= 4:
             _logger.info(
-                "Default encoding: {!r} (file system: {!r})".format(
-                    sys.getdefaultencoding(), sys.getfilesystemencoding()
-                )
+                f"Default encoding: {sys.getdefaultencoding()!r} (file system: {sys.getfilesystemencoding()!r})"
             )
 
         if self.verbose >= 3:
@@ -512,12 +503,10 @@ class WsgiDAVApp:
                 # A typical case: a GET request on a virtual resource, for which
                 # the provider doesn't know the length
                 _logger.error(
-                    "Missing required Content-Length header in {}-response: closing connection".format(
-                        statusCode
-                    )
+                    f"Missing required Content-Length header in {statusCode}-response: closing connection"
                 )
                 forceCloseConnection = True
-            elif not type(currentContentLength) is str:
+            elif type(currentContentLength) is not str:
                 _logger.error(
                     "Invalid Content-Length header in response ({!r}): closing connection".format(
                         headerDict.get("content-length")
@@ -577,7 +566,7 @@ class WsgiDAVApp:
                         "transfer-enc={}".format(environ.get("HTTP_TRANSFER_ENCODING"))
                     )
                 if self.verbose >= 3:
-                    extra.append("elap={:.3f}sec".format(time.time() - start_time))
+                    extra.append(f"elap={time.time() - start_time:.3f}sec")
                 extra = ", ".join(extra)
 
                 # This is the CherryPy format:
@@ -603,8 +592,7 @@ class WsgiDAVApp:
         # Call first middleware
         app_iter = self.application(environ, _start_response_wrapper)
         try:
-            for v in app_iter:
-                yield v
+            yield from app_iter
         finally:
             if hasattr(app_iter, "close"):
                 app_iter.close()

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 """Unit tests for wsgidav.util"""
@@ -227,7 +226,7 @@ class LoggerTest(unittest.TestCase):
 
         rootOutput, baseOutput = self.getLogOutput()
         # Printed for debugging, when test fails:
-        print("ROOT OUTPUT:\n{!r}\nBASE OUTPUT:\n{!r}".format(rootOutput, baseOutput))
+        print(f"ROOT OUTPUT:\n{rootOutput!r}\nBASE OUTPUT:\n{baseOutput!r}")
 
         # No output should be generated in the root logger
         assert rootOutput == ""
@@ -251,7 +250,7 @@ class LoggerTest(unittest.TestCase):
 
         rootOutput, baseOutput = self.getLogOutput()
         # Printed for debugging, when test fails:
-        print("ROOT OUTPUT:\n{!r}\nBASE OUTPUT:\n{!r}".format(rootOutput, baseOutput))
+        print(f"ROOT OUTPUT:\n{rootOutput!r}\nBASE OUTPUT:\n{baseOutput!r}")
 
         # Now output we should see output in the root logger
         assert rootOutput == baseOutput
@@ -293,7 +292,7 @@ class LoggerTest(unittest.TestCase):
 
         rootOutput, baseOutput = self.getLogOutput()
         # Printed for debugging, when test fails:
-        print("ROOT OUTPUT:\n{!r}\nBASE OUTPUT:\n{!r}".format(rootOutput, baseOutput))
+        print(f"ROOT OUTPUT:\n{rootOutput!r}\nBASE OUTPUT:\n{baseOutput!r}")
 
         # init_logging() removes all other handlers
         assert rootOutput == ""

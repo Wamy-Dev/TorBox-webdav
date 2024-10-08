@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -270,7 +269,7 @@ class _DAVResource(ABC):
         elif os.extsep in self.name:
             ext = self.name.split(os.extsep)[-1].upper()
             if len(ext) < 5:
-                return {"type": "{}-File".format(ext)}
+                return {"type": f"{ext}-File"}
         return {"type": "File"}
 
     def get_etag(self):
@@ -822,9 +821,7 @@ class _DAVResource(ABC):
                     )
                 except Exception:
                     _logger.warning(
-                        "Provider does not support set_last_modified on {}.".format(
-                            self.path
-                        )
+                        f"Provider does not support set_last_modified on {self.path}."
                     )
 
             # Unsupported or not allowed

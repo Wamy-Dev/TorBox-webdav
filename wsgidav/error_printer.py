@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -79,20 +78,18 @@ class ErrorPrinter(BaseMiddleware):
             except Exception as e:
                 # Caught a non-DAVError
                 # Catch all exceptions to return as 500 Internal Error
-                _logger.error("{}".format(traceback.format_exc(10)))
-                raise as_DAVError(e)
+                _logger.error(f"{traceback.format_exc(10)}")
+                raise as_DAVError(e) from None
         except DAVError as e:
-            _logger.debug("Caught {}".format(e))
+            _logger.debug(f"Caught {e}")
 
             status = get_http_status_string(e)
             # Dump internal errors to console
             if e.value == HTTP_INTERNAL_ERROR:
                 tb = traceback.format_exc(10)
-                _logger.error(
-                    "Caught HTTPRequestException(HTTP_INTERNAL_ERROR)\n{}".format(tb)
-                )
+                _logger.error(f"Caught HTTPRequestException(HTTP_INTERNAL_ERROR)\n{tb}")
                 # traceback.print_exc(10, environ.get("wsgi.errors") or sys.stdout)
-                _logger.error("e.src_exception:\n{}".format(e.src_exception))
+                _logger.error(f"e.src_exception:\n{e.src_exception}")
             elif e.value in (HTTP_NOT_MODIFIED, HTTP_NO_CONTENT):
                 # _logger.warning("Forcing empty error response for {}".format(e.value))
                 # See paste.lint: these code don't have content

@@ -2,22 +2,18 @@
 
 -r requirements.txt
 
-cheroot~=8.5
-Paste~=2.0
-black~=22.12
-flake8~=6.0
-flake8-bugbear~=23.1
-flake8-quotes~=3.3.2
-pytest~=2.7
-pytest-cov~=1.8
-recommonmark
+cheroot~=10.0
+Paste~=3.0
+black~=24.3
+pytest~=8.2
+pytest-cov~=5.0
+# recommonmark
 requests
-setuptools~=40.2
-#Sphinx
-#sphinx_rtd_theme
+ruff
+setuptools~=69.5
 stressor
-tox~=3.13
-twine~=1.11
-WebTest~=2.0
+tox~=4.15
+twine~=5.0
+WebTest~=3.0
 wheel
-yabs>=0.5
+yabs>=0.6

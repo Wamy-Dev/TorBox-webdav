@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -221,8 +220,9 @@ class RequestResolver(BaseMiddleware):
         # request
         app = RequestServer(provider)
         app_iter = app(environ, start_response)
-        for v in app_iter:
-            yield v
+
+        yield from app_iter
+
         if hasattr(app_iter, "close"):
             app_iter.close()
         return

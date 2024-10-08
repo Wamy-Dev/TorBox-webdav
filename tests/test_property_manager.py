@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 """Unit test for property_manager.py"""
 import os
-import sys
 import unittest
 from tempfile import gettempdir
 
@@ -52,7 +50,7 @@ class BasicTest(unittest.TestCase):
         try:
             pm.get_properties(self.respath)
         except Exception:
-            print("NOTE: if this fails, try to delete the temp files: {}".format(pm))
+            print(f"NOTE: if this fails, try to delete the temp files: {pm}")
             raise
         assert pm._loaded, "PM must be opened after first access"
 
@@ -89,13 +87,12 @@ class ShelveTest(BasicTest):
     """Test property_manager.ShelvePropertyManager()."""
 
     def setUp(self):
-        if sys.version_info < (3, 0):
-            modifier = "-py2"  # shelve formats are incompatible
-        else:
-            modifier = "-py3"
-        self.path = os.path.join(
-            gettempdir(), "wsgidav-props{}.shelve".format(modifier)
-        )
+        # if sys.version_info < (3, 0):
+        #     modifier = "-py2"  # shelve formats are incompatible
+        # else:
+        #     modifier = "-py3"
+        modifier = "-py3"
+        self.path = os.path.join(gettempdir(), f"wsgidav-props{modifier}.shelve")
         # Note: os.remove(self.path) does not work, because Shelve may append
         # a file extension.
         #        if os.path.exists(self.path):

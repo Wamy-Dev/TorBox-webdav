@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 """
 Sample implementation of a DAV provider that provides a browsable,
@@ -151,7 +150,7 @@ _resourceData = [
     },
     {
         "key": "3",
-        "title": "My doc (euro:\u20AC, uuml:��)".encode("utf8"),
+        "title": "My doc (euro:\u20AC, uuml:��)".encode(),
         "orga": "marketing",
         "tags": ["nice"],
         "status": "published",
@@ -216,10 +215,10 @@ class CategoryTypeCollection(DAVCollection):
         names = []
         for data in _resourceData:
             if self.name == "by_status":
-                if not data["status"] in names:
+                if data["status"] not in names:
                     names.append(data["status"])
             elif self.name == "by_orga":
-                if not data["orga"] in names:
+                if data["orga"] not in names:
                     names.append(data["orga"])
             elif self.name == "by_tag":
                 for tag in data["tags"]:
@@ -480,12 +479,12 @@ class VirtualArtifact(_VirtualNonCollection):
         return True
 
     def get_ref_url(self):
-        refPath = "/by_key/%s/%s" % (self.data["key"], self.name)
+        refPath = "/by_key/{}/{}".format(self.data["key"], self.name)
         return quote(self.provider.share_path + refPath)
 
     def get_content(self):
         fileLinks = [
-            "<a href='%s'>%s</a>\n" % (os.path.basename(f), f)
+            f"<a href='{os.path.basename(f)}'>{f}</a>\n"
             for f in self.data["resPathList"]
         ]
         dict = self.data.copy()
@@ -579,7 +578,9 @@ class VirtualResFile(_VirtualNonCollection):
         return statresults[stat.ST_MTIME]
 
     def get_ref_url(self):
-        refPath = "/by_key/%s/%s" % (self.data["key"], os.path.basename(self.file_path))
+        refPath = "/by_key/{}/{}".format(
+            self.data["key"], os.path.basename(self.file_path)
+        )
         return quote(self.provider.share_path + refPath)
 
     def get_content(self):

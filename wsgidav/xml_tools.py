@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2009-2023 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
+# (c) 2009-2024 Martin Wendt and contributors; see WsgiDAV https://github.com/mar10/wsgidav
 # Original PyFileServer (c) 2005 Ho Chun Wei.
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license.php
@@ -17,16 +16,11 @@ _logger = logging.getLogger("wsgidav")
 # Import XML support
 use_lxml = False
 try:
-    # This import helps setup.py to include lxml completely:
-    # lxml with safe defaults
-    from defusedxml.lxml import _etree as etree
-    from lxml import _elementpath as _dummy_elementpath  # noqa
+    from lxml import etree
 
     use_lxml = True
     _ElementType = etree._Element
 except ImportError:
-    # warnings.warn("Could not import lxml")  # , ImportWarning)
-    # Try xml module (Python 2.5 or later) with safe defaults
     # defusedxml doesn't define these non-parsing related objects
     from xml.etree.ElementTree import Element, SubElement, tostring
 
@@ -65,7 +59,7 @@ def string_to_xml(text):
             "If lxml is not available, and unicode is involved, then "
             "installing lxml _may_ solve this issue."
         )
-        _logger.error("XML source: {}".format(text))
+        _logger.error(f"XML source: {text}")
         raise
 
 

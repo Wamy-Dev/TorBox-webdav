@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #   Copyright (c) 2006-2007 Open Source Applications Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +77,7 @@ def object_to_etree(parent, obj, namespace=""):
         # If object is a string, int, or float just add it
         obj = str(obj)
         if obj.startswith("{") is False:
-            ElementTree.SubElement(parent, "{%s}%s" % (namespace, obj))
+            ElementTree.SubElement(parent, f"{{{namespace}}}{obj}")
         else:
             ElementTree.SubElement(parent, obj)
 
@@ -87,7 +86,7 @@ def object_to_etree(parent, obj, namespace=""):
         # recursively
         for key, value in obj.items():
             if key.startswith("{") is False:
-                key_etree = ElementTree.SubElement(parent, "{%s}%s" % (namespace, key))
+                key_etree = ElementTree.SubElement(parent, f"{{{namespace}}}{key}")
                 object_to_etree(key_etree, value, namespace=namespace)
             else:
                 key_etree = ElementTree.SubElement(parent, key)
@@ -125,14 +124,14 @@ class DAVClient:
 
     def log(self, msg):
         if self.logger:
-            print("{}: {}".format(self.logger_prefix, msg))
+            print(f"{self.logger_prefix}: {msg}")
 
     def _request(self, method, path="", body=None, headers=None):
         """Internal request method"""
         self.response = None
 
         assert body is None or is_bytes(body)
-        self.log("{} - {}".format(method, path))
+        self.log(f"{method} - {path}")
 
         if headers is None:
             headers = copy.copy(self.headers)
@@ -172,10 +171,10 @@ class DAVClient:
 
     def set_basic_auth(self, user_name, password):
         """Set basic authentication"""
-        u_p = ("%s:%s" % (user_name, password)).encode("utf8")
+        u_p = (f"{user_name}:{password}").encode()
         b64 = base64_encodebytes(u_p)
         # encodestring() returns a bytestring. We want a native str on Python 3
-        if not type(b64) is str:
+        if type(b64) is not str:
             b64 = b64.decode("utf8")
         auth = "Basic %s" % b64.strip()
         self._username = user_name
@@ -459,7 +458,7 @@ class DAVClient:
         """
         __tracebackhide__ = True  # pylint: disable=unused-variable
         res = self.response
-        full_status = "%s %s" % (res.status_code, res.reason)
+        full_status = f"{res.status_code} {res.reason}"
 
         # Check response Content_Length
         content_length = int(res.headers.get("content-length", 0))
@@ -497,7 +496,7 @@ class DAVClient:
                 )
             )
         if status != res.status_code:
-            raise AppError("Bad response: %s (not %s)" % (full_status, status))
+            raise AppError(f"Bad response: {full_status} (not {status})")
 
     def check_multi_status_response(self, expect_status=200):
         """ """
@@ -524,7 +523,5 @@ class DAVClient:
         for statuscode, hrefs in responses.items():
             if statuscode not in expect_status:
                 raise AppError(
-                    "Invalid multistatus {} for {} (expected {})\n{}".format(
-                        statuscode, hrefs, expect_status, responses
-                    )
+                    f"Invalid multistatus {statuscode} for {hrefs} (expected {expect_status})\n{responses}"
                 )
