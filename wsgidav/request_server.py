@@ -1447,6 +1447,13 @@ class RequestServer:
         path = environ["PATH_INFO"]
         res = self._davProvider.get_resource_inst(path, environ)
 
+        if res.is_redirect():
+            location = res.get_redirect_url()
+            if not location:
+                self._fail(HTTP_INTERNAL_ERROR, "Failed to get the download URL. Please try again later.")
+            start_response("302 Found", [("Location", location)])
+            return [b""]
+
         if util.get_content_length(environ) != 0:
             self._fail(
                 HTTP_MEDIATYPE_NOT_SUPPORTED,

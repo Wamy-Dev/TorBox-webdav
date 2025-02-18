@@ -179,6 +179,14 @@ class FileResource(_VirtualNonCollection):
         #     return open(self.file_path, "r", FileResource.BUFFER_SIZE)
         return open(self.file_path, "rb", FileResource.BUFFER_SIZE)
 
+    def is_redirect(self) -> bool:
+        """Return True, if this resource is a redirect."""
+        return False
+    
+    def get_redirect_url(self) -> str:
+        """Return the URL where this resource redirects to. Must have is_redirect() == True."""
+        return None
+
 
 # ============================================================================
 # Resolvers
